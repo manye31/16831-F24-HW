@@ -163,15 +163,22 @@ class MLPPolicyPG(MLPPolicy):
         self.optimizer.step()
 
         if self.nn_baseline:
-            ## TODO: update the neural network baseline using the q_values as
+            ## update the neural network baseline using the q_values as
             ## targets. The q_values should first be normalized to have a mean
             ## of zero and a standard deviation of one.
+            targets = (q_values - q_values.mean())/q_values.std()
+            targets = ptu.from_numpy(targets)
+
+            baseline_pred = torch.squeeze(self.baseline(observations))
+            baseline_loss = self.baseline_loss(baseline_pred, targets)
+            self.baseline_optimizer.zero_grad()
+            baseline_loss.backward()
+            self.baseline_optimizer.step()
 
             ## HINT1: use self.baseline_optimizer to optimize the loss used for
                 ## updating the baseline. Remember to 'zero_grad' first
             ## HINT2: You will need to convert the targets into a tensor using
                 ## ptu.from_numpy before using it in the loss
-            raise NotImplementedError
 
         train_log = {
             'Training Loss': ptu.to_numpy(policy_loss),
