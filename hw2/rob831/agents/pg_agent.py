@@ -100,8 +100,9 @@ class PGAgent(BaseAgent):
             ## that the predictions have the same mean and standard deviation as
             ## the current batch of q_values
 
-            values = values_normalized * np.std(q_values) + np.mean(q_values)
-
+            values_unnormalized = unnormalize(values_normalized, np.mean(values_normalized), np.std(values_normalized))
+            values = normalize(values_unnormalized, np.mean(q_values), np.std(q_values))
+            
             if self.gae_lambda is not None:
                 ## append a dummy T+1 value for simpler recursive calculation
                 values = np.append(values, [0])
@@ -139,7 +140,7 @@ class PGAgent(BaseAgent):
         if self.standardize_advantages:
             ## standardize the advantages to have a mean of zero
             ## and a standard deviation of one
-            advantages = (advantages - advantages.mean())/advantages.std()
+            advantages = normalize(advantages, np.mean(advantages), np.std(advantages))
 
         return advantages
 
