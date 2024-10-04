@@ -155,7 +155,7 @@ class MLPPolicyPG(MLPPolicy):
         ## Compute loss 
         # MAXIMIZE loss, so make loss negative for optimizer to MINIMIZE
         # Multiply by biased advantage
-        policy_loss = -torch.mean(pi_as * advantages)
+        policy_loss = -torch.sum(pi_as * advantages)
         
         # Zero gradients and backpropagate
         self.optimizer.zero_grad()
@@ -166,7 +166,7 @@ class MLPPolicyPG(MLPPolicy):
             ## update the neural network baseline using the q_values as
             ## targets. The q_values should first be normalized to have a mean
             ## of zero and a standard deviation of one.
-            targets = (q_values - q_values.mean())/q_values.std()
+            targets = normalize(q_values, np.mean(q_values), np.std(q_values))
             targets = ptu.from_numpy(targets)
 
             baseline_pred = torch.squeeze(self.baseline(observations))
