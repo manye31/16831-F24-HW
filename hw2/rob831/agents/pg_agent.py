@@ -116,22 +116,19 @@ class PGAgent(BaseAgent):
                 advantages = np.zeros(batch_size + 1)
 
                 for i in reversed(range(batch_size)):
-                     # Calculate delta_t
-                    delta_t = rewards[i] + self.gamma * (1 - terminals[i]) * values[i + 1] - values[i]
-                    
-                    # Recursively calculate the advantage
-                    advantages[i] = delta_t + self.gae_lambda * self.gamma * (1 - terminals[i]) * advantages[i + 1]
-                
-
-                    ## TODO: recursively compute advantage estimates starting from
+                    ## recursively compute advantage estimates starting from
                         ## timestep T.
                     ## HINT 1: use terminals to handle edge cases. terminals[i]
                         ## is 1 if the state is the last in its trajectory, and
                         ## 0 otherwise.
                     ## HINT 2: self.gae_lambda is the lambda value in the
                         ## GAE formula
-                    raise NotImplementedError
-
+                     # Calculate delta_t
+                    delta_t = rewards[i] + self.gamma * (1 - terminals[i]) * values[i + 1] - values[i]
+                    
+                    # Recursively calculate the advantage
+                    advantages[i] = delta_t + self.gae_lambda * self.gamma * (1 - terminals[i]) * advantages[i + 1]
+                
                 # remove dummy advantage
                 advantages = advantages[:-1]
 

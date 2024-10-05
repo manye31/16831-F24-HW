@@ -155,7 +155,7 @@ class MLPPolicyPG(MLPPolicy):
         ## Compute loss 
         # MAXIMIZE loss, so make loss negative for optimizer to MINIMIZE
         # Multiply by biased advantage
-        policy_loss = -torch.sum(pi_as * advantages)
+        policy_loss = -torch.mean(pi_as * advantages)
         
         # Zero gradients and backpropagate
         self.optimizer.zero_grad()
