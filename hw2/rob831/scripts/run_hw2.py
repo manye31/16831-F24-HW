@@ -1,5 +1,6 @@
 import os
 import time
+import wandb
 
 from rob831.infrastructure.rl_trainer import RL_Trainer
 from rob831.agents.pg_agent import PGAgent
@@ -103,11 +104,18 @@ def main():
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
 
-    logdir = args.exp_name + '_' + args.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
-    logdir = os.path.join(data_path, logdir)
+    logdir_name = args.exp_name + '_' + args.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
+    logdir = os.path.join(data_path, logdir_name)
     params['logdir'] = logdir
     if not(os.path.exists(logdir)):
         os.makedirs(logdir)
+
+    wb = wandb.init(
+        project="RL-16831",
+        name=logdir_name,
+        config = params
+    )
+    params['wandb'] = wb
 
     ###################
     ### RUN TRAINING
@@ -115,6 +123,7 @@ def main():
 
     trainer = PG_Trainer(params)
     trainer.run_training_loop()
+    wb.finish()
 
 
 if __name__ == "__main__":

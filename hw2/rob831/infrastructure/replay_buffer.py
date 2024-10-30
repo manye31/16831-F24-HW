@@ -47,9 +47,11 @@ class ReplayBuffer(object):
                 [self.concatenated_rews, concatenated_rews]
             )[-self.max_size:]
             if isinstance(unconcatenated_rews, list):
-                self.unconcatenated_rews += unconcatenated_rews  # TODO keep only latest max_size around
+                self.unconcatenated_rews += unconcatenated_rews
             else:
-                self.unconcatenated_rews.append(unconcatenated_rews)  # TODO keep only latest max_size around
+                self.unconcatenated_rews.append(unconcatenated_rews)
+             # keep only latest max_size around
+            self.unconcatenated_rews = self.unconcatenated_rews[-self.max_size:]
 
     ########################################
     ########################################
@@ -65,8 +67,15 @@ class ReplayBuffer(object):
     ########################################
 
     def sample_random_data(self, batch_size):
-        # TODO: get this from hw1
-        raise NotImplementedError
+        assert (
+                self.obs.shape[0]
+                == self.acs.shape[0]
+                # == self.rews.shape[0]
+                == self.next_obs.shape[0]
+                == self.terminals.shape[0]
+        )
+        rand_indices = np.random.permutation(self.obs.shape[0])[:batch_size]
+        return self.obs[rand_indices], self.acs[rand_indices], self.concatenated_rews[rand_indices], self.next_obs[rand_indices], self.terminals[rand_indices]
 
     def sample_recent_data(self, batch_size=1, concat_rew=True):
 
