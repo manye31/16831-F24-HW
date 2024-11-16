@@ -3,6 +3,7 @@ import pickle
 import os
 import sys
 import time
+import wandb
 
 import gym
 from gym import wrappers
@@ -101,6 +102,11 @@ class RL_Trainer(object):
         else:
             self.fps = 10
 
+        #############
+        ## LOGGING
+        #############
+        if self.params['wandb'] is not None:
+            self.wandb = self.params['wandb']
 
         #############
         ## AGENT
@@ -327,6 +333,9 @@ class RL_Trainer(object):
             logs["TimeSinceStart"] = time.time() - self.start_time
             logs.update(last_log)
 
+            # WandB
+            self.wandb.log(logs)
+            
             if itr == 0:
                 self.initial_return = np.mean(train_returns)
             logs["Initial_DataCollection_AverageReturn"] = self.initial_return
