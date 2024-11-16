@@ -77,7 +77,7 @@ class DQNCritic(BaseCritic):
             # and page 4 of https://arxiv.org/pdf/1509.06461.pdf is also a good reference.
 
             # Get q values from target network based on argmax of q values
-            q_tp1 = torch.gather(qa_tp1_values, 1, torch.argmax(q_t_values, dim=1).unsqueeze(1)).squeeze(1)
+            q_tp1 = torch.gather(qa_tp1_values, 1, torch.argmax(qa_t_values, dim=1).unsqueeze(1)).squeeze(1)
         else:
             q_tp1, _ = qa_tp1_values.max(dim=1)
 
