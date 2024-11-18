@@ -41,14 +41,13 @@ if __name__ == '__main__':
 
         train, eval = get_section_results(eventfile)
 
-    # X, Y = get_section_results(eventfile)
-    iterations = np.arange(1, len(train)+1, 1)
-    for i, (x, y) in enumerate(zip(train, eval)):
-        print('Iteration {:d} | Train Return: {} | Eval Return: {}'.format(i, x, y))
-    
-    plt.scatter(iterations, train, label="Train")
-    plt.scatter(iterations, eval, label="Eval")
-    plt.xlabel("Iterations")
-    plt.ylabel("Average Return")
-    plt.legend()
-    plt.savefig("/home/micah/ri-classes/16831-F24-HW/hw4/figs/hw4_part1_q2.png")
+        iterations = np.arange(1, len(train)+1, 1)
+        for i, (x, y) in enumerate(zip(train, eval)):
+            print('Iteration {:d} | Train Return: {} | Eval Return: {}'.format(i, x, y))
+        
+        plt.plot(iterations, train, label="Train")
+        plt.plot(iterations, eval, label="Eval")
+        plt.xlabel("Iterations")
+        plt.ylabel("Average Return")
+        plt.legend()
+        plt.savefig(f"/home/micah/ri-classes/16831-F24-HW/hw4/figs/{test}.png")
