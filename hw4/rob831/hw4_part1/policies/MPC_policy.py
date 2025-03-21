@@ -60,6 +60,17 @@ class MPCPolicy(BasePolicy):
             # Begin with randomly selected actions, then refine the sampling distribution
             # iteratively as described in Section 3.3, "Iterative Random-Shooting with Refinement" of
             # https://arxiv.org/pdf/1909.11652.pdf 
+
+            # To address these issues, much prior work [31]
+            # has instead taken a cross-entropy method (CEM) approach, which begins as the random shooting
+            # approach, but then does this sampling for multiple iterations m ∈ {0 . . . M } at each time step. The
+            # top J highest-scoring action sequences from each iteration are used to update and refine the mean
+            # and variance of the sampling distribution for the next iteration, as follows:
+
+            # instantiate horizon x action_space mean and std
+            mean = np.zeros((horizon, self.ac_dim))
+            std  = np.ones((horizon, self.ac_dim))
+
             for i in range(self.cem_iterations):
                 # - Sample candidate sequences from a Gaussian with the current 
                 #   elite mean and variance
@@ -69,10 +80,26 @@ class MPCPolicy(BasePolicy):
                 #     (Hint: what existing function can we use to compute rewards for
                 #      our candidate sequences in order to rank them?)
                 # - Update the elite mean and variance
-                pass
+                # Gaussian
+                actions = mean +  np.random.normal(size=(num_sequences, horizon, self.ac_dim)) * std
+
+                # Filter
+                actions = np.where(actions>self.low, actions, self.low)
+                actions = np.where(actions<self.high, actions, self.high)
+
+                # Compute rewards to rank (using argsort)
+                sorted_elite_idxs = np.argsort(self.evaluate_candidate_sequences(actions, obs))
+                # "The top J highest-scoring action sequences from each iteration are used to update and refine the mean"
+                sorted_cem_elite_idxs = sorted_elite_idxs[-self.cem_num_elites:]
+                elites = actions[sorted_cem_elite_idxs]
+
+                # Update elite mean and variance
+                # "are used to update and refine the mean and variance of the sampling distribution for the next iteration"
+                mean = self.cem_alpha * np.mean(elites, axis=0) + (1-self.cem_alpha) * mean
+                var =  self.cem_alpha * np.std(elites, axis=0) + (1-self.cem_alpha) * std # not actually used tho
 
             # TODO(Q5): Set `cem_action` to the appropriate action chosen by CEM
-            cem_action = None
+            cem_action = mean
 
             return cem_action[None]
         else:
